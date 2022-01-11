@@ -5,6 +5,7 @@
 #include <ESP8266WebServer.h>
 
 #define RESET_PIN 2
+#define SHUTDOWN_PIN 0
 #define MAX_CLIENTS 2
 
 WiFiClient *clients[MAX_CLIENTS] = { NULL };
@@ -12,12 +13,24 @@ WiFiClient *clients[MAX_CLIENTS] = { NULL };
 WiFiServer server(8001);
 ESP8266WebServer webServer(80);
 
+void togglePin(int pin) {
+    digitalWrite(pin, 0);
+    delay(250);
+    digitalWrite(pin, 1);   
+}
+
 void setup() {
   pinMode(RESET_PIN, OUTPUT);
+  pinMode(SHUTDOWN_PIN, OUTPUT);
+  pinMode(4, INPUT_PULLUP);
+  pinMode(5, INPUT_PULLUP);
+
   digitalWrite(RESET_PIN, 1);
+  digitalWrite(SHUTDOWN_PIN, 1);
   
   delay(3000);
   Serial.begin(115200);
+  
   Serial.println();
   Serial.print("Connecting to access point ");
   Serial.print(MY_SSID);
@@ -37,12 +50,27 @@ void setup() {
 
   server.begin();
 
-  webServer.on("/2", []() {
-    digitalWrite(RESET_PIN, 0);
-    delay(250);
-    digitalWrite(RESET_PIN, 1);   
+  webServer.on("/reset", []() {
+    togglePin(RESET_PIN);
     webServer.send(200, "text/plain", "Done\n");
   });
+  
+  webServer.on("/shutdown", []() {
+    togglePin(SHUTDOWN_PIN);
+    webServer.send(200, "text/plain", "Done\n");
+  });
+
+  webServer.on("/wake-up", []() {
+    togglePin(SHUTDOWN_PIN);
+    webServer.send(200, "text/plain", "Done\n");
+  });
+  
+  webServer.on("/reset-esp32", []() {
+    webServer.send(200, "text/plain", "Done\n");
+    delay(500);
+    ESP.restart();
+  });
+  
   webServer.begin();
 
 }
@@ -92,4 +120,12 @@ void loop()
       }
     }
   }
+
+  int r = digitalRead(4);
+  Serial.print(r);
+  r = digitalRead(5);
+  Serial.println(r);
+  delay(500);
+
+  
 }
