@@ -4,8 +4,8 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
-#define RESET_PIN 2
-#define SHUTDOWN_PIN 0
+#define RESET_PIN 4
+#define SHUTDOWN_PIN 5
 #define MAX_CLIENTS 2
 
 WiFiClient *clients[MAX_CLIENTS] = { NULL };
@@ -22,13 +22,11 @@ void togglePin(int pin) {
 void setup() {
   pinMode(RESET_PIN, OUTPUT);
   pinMode(SHUTDOWN_PIN, OUTPUT);
-  pinMode(4, INPUT_PULLUP);
-  pinMode(5, INPUT_PULLUP);
 
   digitalWrite(RESET_PIN, 1);
   digitalWrite(SHUTDOWN_PIN, 1);
   
-  delay(3000);
+  delay(1000);
   Serial.begin(115200);
   
   Serial.println();
@@ -121,11 +119,4 @@ void loop()
     }
   }
 
-  int r = digitalRead(4);
-  Serial.print(r);
-  r = digitalRead(5);
-  Serial.println(r);
-  delay(500);
-
-  
 }
