@@ -1,0 +1,5 @@
+/deps
+/build
+/.idea
+fs/conf5.json
+secrets.h

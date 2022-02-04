@@ -92,3 +92,10 @@ This header file (which is not checked into Git) contains secrets, such as the c
 ```
 
 You can also `#define CREATE_AP`, in which case the ESP will _create_ an access point rather than join one.
+=======
+# JS-enabled demo Mongoose OS firmware
+
+This is the JS demo Mongoose OS app. It gets installed by default at
+[Mongoose OS installation step](https://mongoose-os.com/docs/). It has
+a lot of functionality enabled - cloud integrations, JavaScript engine, etc.
+Its main purpose is to demonstrate the capabilities of Mongoose OS.
