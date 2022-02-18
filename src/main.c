@@ -25,16 +25,19 @@
 #include "mgos_rpc_channel_uart.h"
 #include "mgos_uart.h"
 #include "mgos_http_server.h"
+#include "mgos_wifi.h"
 
-#define UART_NO 1
-#define STDERR_UART 0
-#define RESET_PIN 4
-#define SHUTDOWN_PIN 5
+#define UART_NO mgos_sys_config_get_serial_uart()
+#define STDERR_UART mgos_config_get_default_serial_debug_uart()
+#define RESET_PIN mgos_sys_config_get_serial_reset_pin()
+#define SHUTDOWN_PIN mgos_sys_config_get_serial_shutdown_pin()
 #define SWITCH_MILLIS 120
 
 static struct mg_connection *listener;
 static int reset_pin = RESET_PIN;
 static int shutdown_pin = SHUTDOWN_PIN;
+
+static double last_wifi_ok;
 
 /*
  * Dispatcher can be invoked with any amount of data (even none at all) and
@@ -90,6 +93,20 @@ static void connection_cb(struct mg_connection *c, int ev, void *ev_data, void *
     }
 }
 
+static void check_wifi_cb(void *arg) {
+    enum mgos_wifi_status status = mgos_wifi_get_status();
+    LOG(LL_DEBUG, ("uptime: %.2lf, last %.2lf %d", mgos_uptime(), last_wifi_ok, status));
+
+    if (status == MGOS_WIFI_IP_ACQUIRED) {
+        last_wifi_ok = mgos_uptime();
+    } else {
+        if (mgos_uptime() > last_wifi_ok + 30) {
+            mgos_system_restart();
+        }
+    }
+
+    (void) arg;
+}
 
 enum mgos_app_init_result mgos_app_init(void) {
     struct mgos_uart_config ucfg;
@@ -123,6 +140,9 @@ enum mgos_app_init_result mgos_app_init(void) {
     mgos_register_http_endpoint("/reset-esp32", http_reboot_handler, NULL);
 
     mgos_http_server_set_document_root(NULL);
+
+    last_wifi_ok = mgos_uptime();
+    mgos_set_timer(2000, MGOS_TIMER_REPEAT, check_wifi_cb, NULL);
 
     return MGOS_APP_INIT_SUCCESS;
 }

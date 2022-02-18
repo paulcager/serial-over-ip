@@ -11,6 +11,15 @@ mongoose_os_version: ${mos.version}
 filesystem:
   - fs
 
+config_schema:
+  - ["update.sig_req_mask", "i", 1, {title: "Require signed."}]
+  - ["update.key0", "s", "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEcsJSTPJwyr55K9CyMtHarPZZqmqe0FxSg2rzJsmZwlOdFoDFkvuvYrky71DiNS1AMBLj/N9HqhRepOCBIRd60A==", {title: "Public signature for updates"}]
+  - ["serial", "o", {title: "Serial Over IP"}]
+  - ["serial.uart", "i", 0, {title: "UART for serial comms with monitored system"}]
+  - ["serial.debug.uart", "i", 0, {title: "UART for serial comms with monitored system"}]
+  - ["serial.shutdown.pin", "i", 4, {title: "GPIO pin to initiate shutdown"}]
+  - ["serial.reset.pin", "i", 4, {title: "GPIO pin to reset Pi"}]
+
 sources:
   - src
 libs:
@@ -22,6 +31,7 @@ libs:
   - origin: https://github.com/mongoose-os-libs/rpc-ws
   - origin: https://github.com/mongoose-os-libs/http-server
   - origin: https://github.com/mongoose-os-libs/wifi
+  - origin: https://github.com/mongoose-os-libs/ota-http-server
 
 tags:
   - c
