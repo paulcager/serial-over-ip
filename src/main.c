@@ -29,13 +29,11 @@
 
 #define UART_NO mgos_sys_config_get_serial_uart()
 #define STDERR_UART mgos_config_get_default_serial_debug_uart()
-#define RESET_PIN mgos_sys_config_get_serial_reset_pin()
-#define SHUTDOWN_PIN mgos_sys_config_get_serial_shutdown_pin()
 #define SWITCH_MILLIS 120
 
 static struct mg_connection *listener;
-static int reset_pin = RESET_PIN;
-static int shutdown_pin = SHUTDOWN_PIN;
+static int reset_pin;
+static int shutdown_pin;
 
 static double last_wifi_ok;
 
@@ -86,7 +84,7 @@ static void connection_cb(struct mg_connection *c, int ev, void *ev_data, void *
     if (ev == MG_EV_POLL) return;
 
     if (ev == MG_EV_RECV) {
-        mg_send(c, c->recv_mbuf.buf, c->recv_mbuf.len);
+        //mg_send(c, c->recv_mbuf.buf, c->recv_mbuf.len);
         mgos_uart_write(UART_NO, c->recv_mbuf.buf, c->recv_mbuf.len);
         mgos_uart_flush(UART_NO);
         mbuf_remove(&c->recv_mbuf, c->recv_mbuf.len);
@@ -109,6 +107,10 @@ static void check_wifi_cb(void *arg) {
 }
 
 enum mgos_app_init_result mgos_app_init(void) {
+
+    reset_pin = mgos_sys_config_get_serial_reset_pin();
+    shutdown_pin = mgos_sys_config_get_serial_shutdown_pin();
+
     struct mgos_uart_config ucfg;
     mgos_uart_config_set_defaults(UART_NO, &ucfg);
     ucfg.baud_rate = 115200;
@@ -131,13 +133,13 @@ enum mgos_app_init_result mgos_app_init(void) {
         return MGOS_APP_INIT_ERROR;
     }
 
-    mgos_gpio_setup_output(RESET_PIN, 1);
-    mgos_gpio_setup_output(SHUTDOWN_PIN, 1);
+    mgos_gpio_setup_output(reset_pin, 1);
+    mgos_gpio_setup_output(shutdown_pin, 1);
 
     mgos_register_http_endpoint("/reset", http_pin_handler, &reset_pin);
     mgos_register_http_endpoint("/shutdown", http_pin_handler, &shutdown_pin);
     mgos_register_http_endpoint("/wake-up", http_pin_handler, &shutdown_pin);
-    mgos_register_http_endpoint("/reset-esp32", http_reboot_handler, NULL);
+    mgos_register_http_endpoint("/reset-esp", http_reboot_handler, NULL);
 
     mgos_http_server_set_document_root(NULL);
 
