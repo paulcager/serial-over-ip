@@ -92,3 +92,12 @@ This header file (which is not checked into Git) contains secrets, such as the c
 ```
 
 You can also `#define CREATE_AP`, in which case the ESP will _create_ an access point rather than join one.
+
+### Build and Deploy
+
+Sign the firmware to prevent unauthorised updates (see https://github.com/mongoose-os-libs/ota-common)
+
+```
+mos create-fw-bundle -i build/fw.zip -o build/fw-signed.zip --sign-key=k0.pem
+curl -v -F file=@build/fw-signed.zip http://<<ip>>/update
+```

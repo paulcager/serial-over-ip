@@ -3,3 +3,6 @@
 /.idea
 fs/conf5.json
 secrets.h
+k0.pem
+src/CMakeLists.txt
+src/cmake-build-debug/
