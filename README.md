@@ -44,37 +44,34 @@ tvservice -o
 
 ## Usage
 
-To **connect to the Pi's serial port** (assuming the ESP has obtained IP address `192.168.77.2`):
+To **connect to the Pi's serial port** (assuming the ESP has obtained IP address `192.168.0.28`),
+use `socat` to create a virtual serial port and `screen` to connect to it:
 
 ```
-$ nc -v 192.168.77.2 8001
-Connection to 192.168.77.2 port 8001 [tcp/vcom-tunnel] succeeded!
-
-pi-zero-1 login:
+$ socat pty,raw,echo=0,link=/tmp/esp-serial TCP:192.168.0.28:8001 &
+$ screen /tmp/esp-serial 115200
 ```
 
-You can also use `screen` to get a more functional terminal emulation:
-
-```
-$ screen //telnet 192.168.77.2 8001 115200
-```
+This gives you a proper terminal with working control characters, scrollback, and
+the ability to detach (`CTRL-A d`) and reattach (`screen -r`) without dropping the
+connection.
 
 To **initiate a shutdown** of the Pi:
 
 ```
-$ curl http://192.168.77.2/shutdown
+$ curl http://192.168.0.28/shutdown
 ```
 
 To **force a hard-reset** of the Pi:
 
 ```
-$ curl http://192.168.77.2/reset
+$ curl http://192.168.0.28/reset
 ```
 
 To **wake up** the Pi:
 
 ```
-$ curl http://192.168.77.2/wake-up
+$ curl http://192.168.0.28/wake-up
 ```
 
 ## Security
@@ -94,6 +91,10 @@ This header file (which is not checked into Git) contains secrets, such as the c
 You can also `#define CREATE_AP`, in which case the ESP will _create_ an access point rather than join one.
 
 ### Build and Deploy
+
+```
+mos build
+```
 
 Sign the firmware to prevent unauthorised updates (see https://github.com/mongoose-os-libs/ota-common)
 
