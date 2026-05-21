@@ -90,4 +90,4 @@ Used to manage Raspberry Pis running ADS-B receivers (dump1090) in the attic.
 - **Pi hostname**: `pi-zero-flights-N`
 - **ESP8266 hostname**: `pi-zero-flights-N-monitor`
 
-See main project suite: [1090/CLAUDE.md](../1090/CLAUDE.md)
+See main project suite: [1090/CLAUDE.md](https://github.com/paulcager/1090/blob/main/CLAUDE.md)
